@@ -1,10 +1,71 @@
 #!/usr/bin/env bash
 # Build script for 360 Utility Batch Create Extract (Linux)
-# Requires: pip install pyinstaller
-#           cargo (Rust toolchain) for iso2god and god2iso
-#           gcc, libcurl-dev, zlib1g-dev for abgx360
+# Usage: bash build.sh
+# Installs all dependencies, builds native tools, and bundles the app.
 
 set -e
+
+# ---------------------------------------------------------------------------
+# 1. System dependencies
+# ---------------------------------------------------------------------------
+echo "==> Installing system dependencies..."
+if command -v apt-get &>/dev/null; then
+    sudo apt-get update -qq
+    sudo apt-get install -y \
+        python3-tk \
+        cmake \
+        gcc \
+        libcurl4-openssl-dev \
+        zlib1g-dev \
+        python3-pip
+elif command -v dnf &>/dev/null; then
+    sudo dnf install -y \
+        python3-tkinter \
+        cmake \
+        gcc \
+        libcurl-devel \
+        zlib-devel \
+        python3-pip
+elif command -v pacman &>/dev/null; then
+    sudo pacman -Sy --noconfirm \
+        tk \
+        cmake \
+        gcc \
+        curl \
+        zlib \
+        python-pip
+else
+    echo "WARNING: Unknown package manager — install python3-tk, cmake, gcc, libcurl-dev, zlib-dev manually if the build fails."
+fi
+
+# Rust / cargo
+if ! command -v cargo &>/dev/null; then
+    echo "==> Installing Rust toolchain via rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+    # shellcheck source=/dev/null
+    source "$HOME/.cargo/env"
+fi
+
+# PyInstaller
+echo "==> Installing PyInstaller..."
+pip3 install --quiet --user pyinstaller
+
+# Make sure the user's local bin is on PATH (for pyinstaller)
+export PATH="$HOME/.local/bin:$PATH"
+
+# Ensure submodules are present
+echo "==> Updating git submodules..."
+git submodule update --init --recursive
+
+# ---------------------------------------------------------------------------
+# 2. Build native tools
+# ---------------------------------------------------------------------------
+echo "==> Building extract-xiso (XISO extraction tool)..."
+cd x_tool/extract-xiso-src
+cmake -B build -S .
+cmake --build build --parallel "$(nproc)"
+cp build/extract-xiso ../extract-xiso
+cd ../..
 
 echo "==> Building iso2god (ISO to GOD converter)..."
 cd x_tool/iso2god-rs
@@ -25,6 +86,9 @@ make -j"$(nproc)"
 cp src/abgx360 ../abgx360
 cd ../..
 
+# ---------------------------------------------------------------------------
+# 3. Bundle the Python application
+# ---------------------------------------------------------------------------
 echo "==> Bundling Python application with PyInstaller..."
 pyinstaller \
     --onefile \
@@ -35,4 +99,8 @@ pyinstaller \
     main.pyw
 
 echo ""
-echo "Build complete. Binary is in dist/"
+echo "Build complete."
+echo ""
+echo "  Run the app:    python3 main.pyw"
+echo "  Or use bundle:  ./dist/360\ Utility\ Batch\ Create\ Extract\ v1.2"
+echo ""

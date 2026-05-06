@@ -23,54 +23,50 @@ Batch extraction and creation of Xbox 360 and Original Xbox ISOs, with native Li
 
 ## Requirements
 
-### System packages
+- Linux (Debian/Ubuntu, Fedora, or Arch-based)
+- `sudo` access (for installing system packages)
+- `git` (to clone with submodules)
+- Internet connection (for the first build — downloads Rust toolchain if not already installed)
 
-```bash
-sudo apt install python3-tk                           # GUI toolkit
-sudo apt install cargo                                # Rust (for iso2god and god2iso)
-sudo apt install gcc libcurl4-openssl-dev zlib1g-dev  # C build tools (for abgx360)
-```
-
-### extract-xiso (Linux binary)
-
-`extract-xiso` handles batch ISO extraction and creation. You must provide the Linux binary yourself:
-
-```bash
-# Build from source
-git clone https://github.com/XboxDev/extract-xiso.git
-cd extract-xiso && cmake . && make
-cp extract-xiso /path/to/repo/x_tool/extract-xiso
-chmod +x /path/to/repo/x_tool/extract-xiso
-```
+`build.sh` installs everything else automatically.
 
 ---
 
 ## Setup
 
-Clone the repo and build all native tool binaries with the provided build script:
-
 ```bash
-git clone https://github.com/your-fork/Xbox360-Utility-Create-Extract.git
+git clone --recurse-submodules https://github.com/your-fork/Xbox360-Utility-Create-Extract.git
 cd Xbox360-Utility-Create-Extract
+bash build.sh
+python3 main.pyw
 ```
 
-Place the `extract-xiso` Linux binary into `x_tool/` (see above), then run:
+That's it. `build.sh` will:
+1. Install system packages (`python3-tk`, `cmake`, `gcc`, `libcurl-dev`, `zlib-dev`) via your distro's package manager
+2. Install Rust via `rustup` if `cargo` is not already present
+3. Install PyInstaller via `pip3`
+4. Initialise git submodules (if not already done)
+5. Build `extract-xiso` from `x_tool/extract-xiso-src/`
+6. Build `iso2god` from `x_tool/iso2god-rs/`
+7. Build `god2iso` from `x_tool/god2iso-rs/`
+8. Build `abgx360` from `x_tool/abgx360-src/`
+9. Bundle everything into a standalone executable in `dist/`
+
+If you already cloned without `--recurse-submodules`:
 
 ```bash
+git submodule update --init --recursive
 bash build.sh
 ```
-
-`build.sh` will:
-1. Build `iso2god` from `x_tool/iso2god-rs/` (Rust — requires `cargo`)
-2. Build `god2iso` from `x_tool/god2iso-rs/` (Rust — requires `cargo`)
-3. Build `abgx360` from `x_tool/abgx360-src/` (C — requires `gcc`, `libcurl`, `zlib`)
-4. Bundle everything into a single executable via PyInstaller into `dist/`
 
 ### Manual build (without PyInstaller)
 
 If you just want to run from source without bundling:
 
 ```bash
+# Build extract-xiso
+cd x_tool/extract-xiso-src && cmake -B build -S . && cmake --build build --parallel
+cp build/extract-xiso ../extract-xiso && cd ../...
 # Build iso2god
 cd x_tool/iso2god-rs && cargo build --release
 cp target/release/iso2god ../iso2god && cd ../..
@@ -185,10 +181,11 @@ Xbox360-Utility-Create-Extract/
 ├── x_ISO/                # Drop ISO files here for extraction
 ├── Images/               # App icon
 └── x_tool/
-    ├── extract-xiso      # ← you provide this (Linux binary)
+    ├── extract-xiso      # ← built by build.sh
     ├── iso2god           # ← built by build.sh
     ├── god2iso           # ← built by build.sh
     ├── abgx360           # ← built by build.sh
+    ├── extract-xiso-src/ # Source: XISO extraction tool (C, submodule)
     ├── iso2god-rs/       # Source: ISO → GOD converter (Rust)
     ├── god2iso-rs/       # Source: GOD → ISO converter (Rust)
     └── abgx360-src/      # Source: ISO fix/verify tool (C)
@@ -199,7 +196,7 @@ Xbox360-Utility-Create-Extract/
 ## Troubleshooting
 
 **`extract-xiso` not found**  
-Make sure the Linux binary is at `x_tool/extract-xiso` and is executable (`chmod +x x_tool/extract-xiso`).
+Run `bash build.sh` or the manual cmake build above. If you cloned without `--recurse-submodules`, run `git submodule update --init --recursive` first.
 
 **`iso2god` / `god2iso` / `abgx360` not found**  
 Run `bash build.sh` or follow the manual build steps above. The binaries must be at `x_tool/iso2god`, `x_tool/god2iso`, and `x_tool/abgx360`.

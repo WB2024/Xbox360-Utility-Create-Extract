@@ -1,0 +1,3 @@
+[submodule "x_tool/extract-xiso-src"]
+	path = x_tool/extract-xiso-src
+	url = https://github.com/XboxDev/extract-xiso.git

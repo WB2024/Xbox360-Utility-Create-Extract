@@ -50,6 +50,9 @@ x_tool/extract-xiso
 x_tool/iso2god-rs/target/
 x_tool/god2iso-rs/target/
 
+# extract-xiso cmake build output
+x_tool/extract-xiso-src/build/
+
 # abgx360 autoconf build output
 x_tool/abgx360-src/src/abgx360
 x_tool/abgx360-src/Makefile
