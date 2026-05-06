@@ -1,9 +1,9 @@
-# 360 Utility Batch Create Extract — Linux Fork
+# X360Forge
 
 > A fully native Linux port of the original Windows-only Xbox 360 utility by BLAHPR.  
 > No wine. No Windows tools. All binaries are built from source on Linux.
 
-Batch extraction and creation of Xbox 360 and Original Xbox ISOs, with native Linux tools for ISO ↔ GOD conversion and ISO verification/fixing.
+Xbox 360 & Original Xbox ISO toolkit — batch extraction, creation, GOD conversion, and ISO fixing, all with native Linux tools.
 
 ---
 
@@ -172,7 +172,7 @@ Reconstructs an ISO from a Games on Demand package.
 ## Project Structure
 
 ```
-Xbox360-Utility-Create-Extract/
+X360Forge/
 ├── main.pyw              # Main GUI application
 ├── x_create.py           # ISO creation logic
 ├── x_extract.py          # ISO extraction logic
@@ -215,6 +215,7 @@ Install Rust: `sudo apt install cargo` or via [rustup.rs](https://rustup.rs)
 | Contributor | Role |
 |---|---|
 | BLAHPR | Original utility author |
+| WB2024 | Linux port, X360Forge |
 | XboxDev | `extract-xiso` |
 | iliazeus | `iso2god-rs` (Rust ISO→GOD) |
 | raburton | Original `god2iso` (C#) |

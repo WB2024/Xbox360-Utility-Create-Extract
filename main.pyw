@@ -22,25 +22,40 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 class XISOToolApp:
+    # ── Palette ────────────────────────────────────────────────────────────
+    BG          = "#0f1117"   # near-black background
+    PANEL       = "#1a1d27"   # slightly lighter panel
+    BORDER      = "#2a2d3e"   # subtle border/separator
+    TEXT        = "#e0e0e0"   # primary text
+    TEXT_DIM    = "#6b7280"   # muted / author line
+    ACCENT      = "#107bef"   # Xbox blue — primary actions
+    ACCENT_HOV  = "#1a8fff"
+    GREEN       = "#22c55e"   # create/extract
+    GREEN_HOV   = "#16a34a"
+    RED         = "#ef4444"   # destructive
+    RED_HOV     = "#dc2626"
+    ORANGE      = "#f97316"   # fix ISO
+    ORANGE_HOV  = "#ea6f0e"
+    CONSOLE_BG  = "#080b10"
+    CONSOLE_FG  = "#a3e635"   # terminal green
+
     def __init__(self, root):
         self.root = root
-        self.root.title("360 Utility Batch Create Extract v1.2")
-        self.root.geometry("600x738")
-        self.root.configure(bg="brown")
+        self.root.title("X360Forge")
+        self.root.geometry("640x760")
+        self.root.configure(bg=self.BG)
+        self.root.resizable(True, True)
 
         self.translations = get_translations()
 
-        # Set the icon for the Tkinter window (try PNG first, fall back silently)
         try:
             icon_path = self.resource_path('images/360.ico')
             self.root.iconbitmap(icon_path)
         except Exception:
             pass
 
-        # Create the main layout
         self.create_widgets()
 
-        # Redirect standard output to the status window
         self.original_stdout = sys.stdout
         sys.stdout = self
 
@@ -70,68 +85,126 @@ class XISOToolApp:
         self.isotogod_btn.config(text=tr["iso2god"])
         self.godtoiso_btn.config(text=tr["god2iso"])
         self.help_btn.config(text=tr["help"])
+
+    def _btn(self, parent, text, command, bg, hover_bg, fg="#ffffff"):
+        """Create a styled flat button with hover effect."""
+        b = tk.Button(
+            parent, text=text, command=command,
+            bg=bg, fg=fg, activebackground=hover_bg, activeforeground=fg,
+            font=("Helvetica", 11, "bold"),
+            relief=tk.FLAT, bd=0, cursor="hand2",
+            padx=10, pady=8
+        )
+        b.bind("<Enter>", lambda e: b.config(bg=hover_bg))
+        b.bind("<Leave>", lambda e: b.config(bg=bg))
+        return b
+
+    def _separator(self, parent):
+        tk.Frame(parent, bg=self.BORDER, height=1).pack(fill=tk.X, padx=16, pady=4)
     
     def create_widgets(self):
-        # Create menu bar
+        # ── Menu bar ───────────────────────────────────────────────────────
         menubar = Menu(self.root)
         self.root.config(menu=menubar)
         self.menubar = menubar
 
-        # Title and author labels at the top
-        self.title_label = tk.Label(self.root, text="360 Utility Batch Create Extract v1.2", font=("Helvetica", 16), fg="gold", bg="brown")
-        self.title_label.pack(pady=10)
+        # ── Header ─────────────────────────────────────────────────────────
+        header = tk.Frame(self.root, bg=self.PANEL)
+        header.pack(fill=tk.X)
 
-        self.author_label = tk.Label(self.root, text="BY: BLAHPR 2024", font=("Helvetica", 12), fg="gold", bg="brown")
-        self.author_label.pack(pady=1)
+        self.title_label = tk.Label(
+            header, text="X360Forge",
+            font=("Helvetica", 22, "bold"), fg=self.ACCENT, bg=self.PANEL
+        )
+        self.title_label.pack(pady=(14, 0))
 
-        # Buttons arranged in the middle
-        button_frame = tk.Frame(self.root, bg="black")
-        button_frame.pack(pady=10, fill=tk.X)
+        self.author_label = tk.Label(
+            header, text="by WB2024",
+            font=("Helvetica", 9), fg=self.TEXT_DIM, bg=self.PANEL
+        )
+        self.author_label.pack(pady=(0, 12))
 
-        # Define a font variable for bold text
-        bold_font = ("Helvetica", 12, "bold")
+        tk.Frame(self.root, bg=self.BORDER, height=1).pack(fill=tk.X)
 
-        self.extract_btn = tk.Button(button_frame, text="Extract Game Folders from ISOS", command=self.extract_xiso, bg="lightblue", fg="blue", font=bold_font)
-        self.extract_btn.pack(pady=5, fill=tk.X, padx=20)
+        # ── Button panel ───────────────────────────────────────────────────
+        button_frame = tk.Frame(self.root, bg=self.BG)
+        button_frame.pack(fill=tk.X, pady=(10, 0))
 
-        self.create_btn = tk.Button(button_frame, text="Create ISOS from Game Folders", command=self.create_xiso, bg="lightgreen", fg="green", font=bold_font)
-        self.create_btn.pack(pady=5, fill=tk.X, padx=20)
+        # --- ISO extraction / creation group ---
+        self.extract_btn = self._btn(
+            button_frame, "", self.extract_xiso, self.GREEN, self.GREEN_HOV
+        )
+        self.extract_btn.pack(fill=tk.X, padx=16, pady=(4, 2))
 
-        self.extract_delete_btn = tk.Button(button_frame, text="Extract and Delete ISO Files  !!! >PERMANENTLY< !!!", command=self.extract_delete_xiso, bg="#FF0000", fg="yellow", font=bold_font)
-        self.extract_delete_btn.pack(pady=5, fill=tk.X, padx=20)
+        self.create_btn = self._btn(
+            button_frame, "", self.create_xiso, self.ACCENT, self.ACCENT_HOV
+        )
+        self.create_btn.pack(fill=tk.X, padx=16, pady=2)
 
-        # New button to delete source folders
-        self.delete_source_folders_btn = tk.Button(button_frame, text="Delete Game Folders  !!! >PERMANENTLY< !!!", command=self.delete_source_folders, bg="#FF0000", fg="yellow", font=bold_font)
-        self.delete_source_folders_btn.pack(pady=5, fill=tk.X, padx=20)
+        self._separator(button_frame)
 
-        # Buttons to run native Linux tools
-        self.fix_iso_btn = tk.Button(button_frame, text="Fix ISO (abgx360)", command=self.run_fix_iso, bg="#00569D", fg="darkorange", font=bold_font)
-        self.fix_iso_btn.pack(pady=5, fill=tk.X, padx=20)
+        # --- Destructive actions group ---
+        self.extract_delete_btn = self._btn(
+            button_frame, "", self.extract_delete_xiso, self.RED, self.RED_HOV
+        )
+        self.extract_delete_btn.pack(fill=tk.X, padx=16, pady=2)
 
-        self.isotogod_btn = tk.Button(button_frame, text="ISO to GOD (GAMES ON DEMAND)", command=self.run_iso2god, bg="#00569D", fg="darkorange", font=bold_font)
-        self.isotogod_btn.pack(pady=5, fill=tk.X, padx=20)
+        self.delete_source_folders_btn = self._btn(
+            button_frame, "", self.delete_source_folders, self.RED, self.RED_HOV
+        )
+        self.delete_source_folders_btn.pack(fill=tk.X, padx=16, pady=2)
 
-        self.godtoiso_btn = tk.Button(button_frame, text="GOD to ISO (GAMES ON DEMAND)", command=self.run_god2iso, bg="#00569D", fg="darkorange", font=bold_font)
-        self.godtoiso_btn.pack(pady=5, fill=tk.X, padx=20)
+        self._separator(button_frame)
 
-        self.help_btn = tk.Button(button_frame, text=">Help / ReadMe<", command=self.show_help, bg="crimson", fg="white", font=bold_font)
-        self.help_btn.pack(pady=5, fill=tk.X, padx=20)
+        # --- Native tool group ---
+        self.fix_iso_btn = self._btn(
+            button_frame, "", self.run_fix_iso, self.ORANGE, self.ORANGE_HOV
+        )
+        self.fix_iso_btn.pack(fill=tk.X, padx=16, pady=2)
 
-        # Status window at the bottom
-        status_frame = tk.Frame(self.root, bg="black")
-        status_frame.pack(expand=True, fill=tk.BOTH, pady=10, padx=20)
+        self.isotogod_btn = self._btn(
+            button_frame, "", self.run_iso2god, self.ACCENT, self.ACCENT_HOV
+        )
+        self.isotogod_btn.pack(fill=tk.X, padx=16, pady=2)
 
-        self.status_text = tk.Text(status_frame, bg="black", fg="white", wrap=tk.WORD)
-        self.status_text.pack(expand=True, fill=tk.BOTH)
+        self.godtoiso_btn = self._btn(
+            button_frame, "", self.run_god2iso, self.ACCENT, self.ACCENT_HOV
+        )
+        self.godtoiso_btn.pack(fill=tk.X, padx=16, pady=(2, 4))
 
-        scrollbar = tk.Scrollbar(status_frame, command=self.status_text.yview)
+        self._separator(button_frame)
+
+        # --- Help ---
+        self.help_btn = self._btn(
+            button_frame, "", self.show_help, self.PANEL, self.BORDER, fg=self.TEXT_DIM
+        )
+        self.help_btn.pack(fill=tk.X, padx=16, pady=(2, 8))
+
+        # ── Status console ─────────────────────────────────────────────────
+        tk.Frame(self.root, bg=self.BORDER, height=1).pack(fill=tk.X)
+
+        console_frame = tk.Frame(self.root, bg=self.CONSOLE_BG)
+        console_frame.pack(expand=True, fill=tk.BOTH, padx=0, pady=0)
+
+        scrollbar = tk.Scrollbar(console_frame, bg=self.BORDER, troughcolor=self.BG)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.status_text.config(yscrollcommand=scrollbar.set)
 
-        # Add help content display area
-        self.help_text_area = tk.Text(self.root, bg="lightgrey", fg="black", wrap=tk.WORD, height=15)
-        self.help_text_area.pack(pady=10, padx=10, fill=tk.BOTH)
-        self.help_text_area.config(state=tk.DISABLED)
+        self.status_text = tk.Text(
+            console_frame,
+            bg=self.CONSOLE_BG, fg=self.CONSOLE_FG,
+            insertbackground=self.CONSOLE_FG,
+            font=("Monospace", 10),
+            relief=tk.FLAT, bd=0,
+            wrap=tk.WORD,
+            padx=10, pady=8,
+            yscrollcommand=scrollbar.set
+        )
+        self.status_text.pack(expand=True, fill=tk.BOTH)
+        scrollbar.config(command=self.status_text.yview)
+
+        # Legacy help_text_area (hidden — kept for compatibility)
+        self.help_text_area = tk.Text(self.root, height=0)
+        self.help_text_area.pack_forget()
 
     def clear_status(self):
         """ Clear the status text window. """
@@ -171,28 +244,27 @@ class XISOToolApp:
     def show_help(self):
         # Create a new help window
         help_window = tk.Toplevel(self.root)
-        help_window.title(">Help / ReadMe<")
-        help_window.geometry("760x825")  # Set the size of the window
-        help_window.configure(bg="brown")
+        help_window.title("Help / README")
+        help_window.geometry("720x700")
+        help_window.configure(bg=self.BG)
 
-        # Set the icon for the help window
         try:
             help_window.iconbitmap(self.resource_path('images/360.ico'))
         except Exception:
             pass
 
-        # Create a text widget for displaying help content
-        text_widget = tk.Text(help_window, bg="lightgrey", fg="black", wrap=tk.WORD, font=("Helvetica", 13, "bold"))
-        text_widget.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+        text_widget = tk.Text(
+            help_window,
+            bg=self.CONSOLE_BG, fg=self.TEXT,
+            wrap=tk.WORD, font=("Monospace", 11),
+            relief=tk.FLAT, bd=0,
+            padx=16, pady=12
+        )
+        text_widget.pack(expand=True, fill=tk.BOTH, padx=0, pady=0)
 
-        # Add scrollbars to the text widget
         scrollbar_y = tk.Scrollbar(help_window, orient=tk.VERTICAL, command=text_widget.yview)
         scrollbar_y.pack(side=tk.RIGHT, fill=tk.Y)
         text_widget.config(yscrollcommand=scrollbar_y.set)
-
-        scrollbar_x = tk.Scrollbar(help_window, orient=tk.HORIZONTAL, command=text_widget.xview)
-        scrollbar_x.pack(side=tk.BOTTOM, fill=tk.X)
-        text_widget.config(xscrollcommand=scrollbar_x.set)
 
         # Insert the help text into the text widget
         content = self.translations["English"]["help_text"]

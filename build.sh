@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build script for 360 Utility Batch Create Extract (Linux)
+# Build script for X360Forge (Linux)
 # Usage: bash build.sh
 # Installs all dependencies, builds native tools, and bundles the app.
 
@@ -96,12 +96,12 @@ pyinstaller \
     --add-data "x_tool:x_tool" \
     --add-data "images:images" \
     --add-data "x_ISO:x_ISO" \
-    --name "360 Utility Batch Create Extract v1.2" \
+    --name "X360Forge" \
     main.pyw
 
 echo ""
 echo "Build complete."
 echo ""
 echo "  Run the app:    python3 main.pyw"
-echo "  Or use bundle:  ./dist/360\ Utility\ Batch\ Create\ Extract\ v1.2"
+echo "  Or use bundle:  ./dist/X360Forge"
 echo ""
