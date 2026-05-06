@@ -8,10 +8,9 @@ def get_translations():
             "create": "Create ISOS from Game Folders",
             "extract_delete": "Extract and Delete ISO Files  !!! >PERMANENTLY< !!!",
             "delete": "Delete Game Folders  !!! >PERMANENTLY< !!!",
-            "fix_iso": "360mpGui v1.5.0.0 (Fix ISOS One by One)",
+            "fix_iso": "Fix ISO (abgx360)",
             "iso2god": "ISO to GOD (GAMES ON DEMAND)",
             "god2iso": "GOD to ISO (GAMES ON DEMAND)",
-            "image_browser": "Xbox Image Browser",
             "help": ">Help / ReadMe<",
             'help_text': (
                 "* 360 Utility Batch Create Extract\n\n"
@@ -31,6 +30,19 @@ def get_translations():
                 "* This Utility will batch-create ISO files from these game folders that contain\n"
                 "* xex or xbe.\n\n"
                 "* The newly created ISO files will be saved next to the x_ISO folder.\n\n"
+                "**********************************************************************\n"
+                "3.. ISO to GOD:\n\n"
+                "* Select an ISO file. The GOD package will be written to the chosen output folder.\n\n"
+                "**********************************************************************\n"
+                "4.. GOD to ISO:\n\n"
+                "* Select a GOD package header file (not the .data folder).\n"
+                "* The ISO will be reconstructed in the chosen output folder.\n\n"
+                "**********************************************************************\n"
+                "5.. Fix ISO (abgx360):\n\n"
+                "* Select an ISO to verify and auto-fix with abgx360.\n"
+                "* Applies AutoFix level 3 and video padding fix (-p).\n"
+                "* Runs offline (-o) — no internet connection needed.\n"
+                "* Use this to make newly created ISOs burnable/compatible.\n\n"
                 "**********************************************************************\n"
                 "* 8/19/2024 8:12 PM\n\n"
                 "* BLAHPR 2024.\n\n"

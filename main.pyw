@@ -1,5 +1,5 @@
 import tkinter as tk  # Standard Python interface to the Tk GUI toolkit
-from tkinter import scrolledtext, Menu  # Scrollable text widget and Menu from tkinter
+from tkinter import scrolledtext, Menu, filedialog  # Scrollable text widget, Menu, and file dialogs from tkinter
 import threading  # Support for threading (concurrent execution)
 import x_create  # Custom module for creating files, folders, or objects
 import x_extract  # Custom module for extracting data or files
@@ -69,7 +69,6 @@ class XISOToolApp:
         self.fix_iso_btn.config(text=tr["fix_iso"])
         self.isotogod_btn.config(text=tr["iso2god"])
         self.godtoiso_btn.config(text=tr["god2iso"])
-        self.image_browser_btn.config(text=tr["image_browser"])
         self.help_btn.config(text=tr["help"])
     
     def create_widgets(self):
@@ -105,18 +104,15 @@ class XISOToolApp:
         self.delete_source_folders_btn = tk.Button(button_frame, text="Delete Game Folders  !!! >PERMANENTLY< !!!", command=self.delete_source_folders, bg="#FF0000", fg="yellow", font=bold_font)
         self.delete_source_folders_btn.pack(pady=5, fill=tk.X, padx=20)
 
-        # New buttons to run external programs
-        self.fix_iso_btn = tk.Button(button_frame, text="360mpGui v1.5.0.0 (Fix ISOS One by One)", command=self.run_external_program_1, bg="#00569D", fg="darkorange", font=bold_font)
+        # Buttons to run native Linux tools
+        self.fix_iso_btn = tk.Button(button_frame, text="Fix ISO (abgx360)", command=self.run_fix_iso, bg="#00569D", fg="darkorange", font=bold_font)
         self.fix_iso_btn.pack(pady=5, fill=tk.X, padx=20)
 
-        self.isotogod_btn = tk.Button(button_frame, text="ISO to GOD (GAMES ON DEMAND)", command=self.run_external_program_2, bg="#00569D", fg="darkorange", font=bold_font)
+        self.isotogod_btn = tk.Button(button_frame, text="ISO to GOD (GAMES ON DEMAND)", command=self.run_iso2god, bg="#00569D", fg="darkorange", font=bold_font)
         self.isotogod_btn.pack(pady=5, fill=tk.X, padx=20)
 
-        self.godtoiso_btn = tk.Button(button_frame, text="GOD to ISO (GAMES ON DEMAND)", command=self.run_external_program_3, bg="#00569D", fg="darkorange", font=bold_font)
+        self.godtoiso_btn = tk.Button(button_frame, text="GOD to ISO (GAMES ON DEMAND)", command=self.run_god2iso, bg="#00569D", fg="darkorange", font=bold_font)
         self.godtoiso_btn.pack(pady=5, fill=tk.X, padx=20)
-
-        self.image_browser_btn = tk.Button(button_frame, text="Xbox Image Browser", command=self.run_external_program_4, bg="#00569D", fg="darkorange", font=bold_font)
-        self.image_browser_btn.pack(pady=5, fill=tk.X, padx=20)
 
         self.help_btn = tk.Button(button_frame, text=">Help / ReadMe<", command=self.show_help, bg="crimson", fg="white", font=bold_font)
         self.help_btn.pack(pady=5, fill=tk.X, padx=20)
@@ -205,45 +201,98 @@ class XISOToolApp:
         text_widget.insert(tk.END, content)
         text_widget.config(state=tk.DISABLED)  # Make the text widget read-only
 
-    def run_external_program_1(self):
+    def run_fix_iso(self):
         self.clear_status()
-        self.update_status("BY: 360mpGui Team")
-        self.update_status("RUNNING 360mpGui v1.5.0.0.exe via wine\n\nWAIT...\nOpening the utility. Navigate manually:\n  Create ISO tab -> Convert an created ISO button.")
-        threading.Thread(target=self.execute_external_program_1).start()
+        iso_file = filedialog.askopenfilename(
+            title="Select ISO to fix with abgx360",
+            filetypes=[("ISO files", "*.iso"), ("All files", "*.*")]
+        )
+        if not iso_file:
+            self.update_status("Cancelled.")
+            return
+        self.update_status(f"Fix ISO (abgx360)\nFile: {iso_file}\n\nRunning abgx360 AutoFix (level 3) + video padding fix...\n")
+        threading.Thread(target=self.execute_fix_iso, args=(iso_file,)).start()
 
-    def execute_external_program_1(self):
-        subprocess.Popen(['wine', 'x_tool/360 mp Gui v1.5.0.0/360mpGui v1.5.0.0.exe'])
-        self.update_status("\nBrowse/Locate ISOS to Fix One at a Time.\nFind Window Again:\nCreate ISO <- Tab\nConvert an created ISO <- Button")
+    def execute_fix_iso(self, iso_file):
+        tool = self.resource_path('x_tool/abgx360')
+        try:
+            proc = subprocess.Popen(
+                [tool, '--af3', '-p', '-s', '-o', '--', iso_file],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True
+            )
+            for line in proc.stdout:
+                self.update_status(line.rstrip())
+            proc.wait()
+            if proc.returncode == 0:
+                self.update_status("\nDone. ISO fixed successfully.")
+            else:
+                self.update_status(f"\nabgx360 exited with code {proc.returncode}.")
+        except Exception as e:
+            self.update_status(f"Failed to run abgx360: {e}")
 
-    def run_external_program_2(self):
+    def run_iso2god(self):
         self.clear_status()
-        self.update_status("BY: Iso2God Team")
-        self.update_status("RUNNING: Iso2God.exe\n\n")
-        threading.Thread(target=self.execute_external_program_2).start()
+        iso_file = filedialog.askopenfilename(
+            title="Select ISO file to convert to GOD",
+            filetypes=[("ISO files", "*.iso"), ("All files", "*.*")]
+        )
+        if not iso_file:
+            self.update_status("Cancelled.")
+            return
+        output_dir = filedialog.askdirectory(title="Select output folder for GOD files")
+        if not output_dir:
+            self.update_status("Cancelled.")
+            return
+        self.update_status(f"ISO to GOD\nSource: {iso_file}\nOutput: {output_dir}\n\nConverting...")
+        threading.Thread(target=self.execute_iso2god, args=(iso_file, output_dir)).start()
 
-    def execute_external_program_2(self):
-        subprocess.Popen(['wine', 'x_tool/iso2god-v1.3.8/Iso2God.exe'])
-        self.update_status("\nCreate GOD from ISOS for Xbox360. Also Works with Original Xbox ISOS and Makes These Original Xbox Games/ISOS GOD Format for Xbox360.")
+    def execute_iso2god(self, iso_file, output_dir):
+        tool = self.resource_path('x_tool/iso2god')
+        try:
+            result = subprocess.run(
+                [tool, iso_file, output_dir],
+                capture_output=True, text=True
+            )
+            self.update_status(result.stdout)
+            if result.returncode != 0:
+                self.update_status(f"Error:\n{result.stderr}")
+            else:
+                self.update_status("\nDone. GOD files written to output folder.")
+        except Exception as e:
+            self.update_status(f"Failed to run iso2god: {e}")
 
-    def run_external_program_3(self):
+    def run_god2iso(self):
         self.clear_status()
-        self.update_status("BY: God2Iso Team")
-        self.update_status("RUNNING: God2Iso.exe")
-        threading.Thread(target=self.execute_external_program_3).start()
+        god_file = filedialog.askopenfilename(
+            title="Select GOD package file (the file without extension, not the .data folder)",
+            filetypes=[("All files", "*.*")]
+        )
+        if not god_file:
+            self.update_status("Cancelled.")
+            return
+        output_dir = filedialog.askdirectory(title="Select output folder for ISO")
+        if not output_dir:
+            self.update_status("Cancelled.")
+            return
+        self.update_status(f"GOD to ISO\nSource: {god_file}\nOutput: {output_dir}\n\nConverting...")
+        threading.Thread(target=self.execute_god2iso, args=(god_file, output_dir)).start()
 
-    def execute_external_program_3(self):
-        subprocess.Popen(['wine', 'x_tool/God2Iso 1.0.5/God2Iso.exe'])
-        self.update_status("\nCreate ISOS from GOD 'Games on Demand' for Xbox360.\nUse 360mpGui v1.5.0.0 (Fix ISOS One by One) To Fix ISOS to Work with Xbox Image Browser.\n\nDONT FORGET:\nAfter or Before Adding ISOS Check Fix''CreateIsoGood''broken header if Needed.")
-
-    def run_external_program_4(self):
-        self.clear_status()
-        self.update_status("BY: Redline99")
-        self.update_status("RUNNING: Xbox Image Browser.exe")
-        threading.Thread(target=self.execute_external_program_4).start()
-
-    def execute_external_program_4(self):
-        subprocess.Popen(['wine', 'x_tool/360 mp Gui v1.5.0.0/360mpTools/Xbox Image Browser.exe'])
-        self.update_status("\nGetting Error Running Xbox Image Browser?\n\nEnsure wine is installed and MSCOMCTL.OCX is registered:\n  wine regsvr32 'x_tool/360 mp Gui v1.5.0.0/360mpTools/MSCOMCTL.OCX'\n\nThen try again.")
+    def execute_god2iso(self, god_file, output_dir):
+        tool = self.resource_path('x_tool/god2iso')
+        try:
+            result = subprocess.run(
+                [tool, god_file, output_dir],
+                capture_output=True, text=True
+            )
+            self.update_status(result.stdout)
+            if result.returncode != 0:
+                self.update_status(f"Error:\n{result.stderr}")
+            else:
+                self.update_status("\nDone. ISO written to output folder.")
+        except Exception as e:
+            self.update_status(f"Failed to run god2iso: {e}")
 
     def delete_source_folders(self):
         self.clear_status()

@@ -1,4 +1,6 @@
-import subprocess
-
-# Launch 360mpGui via wine
-subprocess.Popen(['wine', 'x_tool/360 mp Gui v1.5.0.0/360mpGui v1.5.0.0.exe'])
+# xISOfix.py
+# ISO header fixing was previously handled by 360mpGui (Windows, via wine).
+# This functionality has been removed. The god2iso-rs tool applies header
+# fixes automatically via the --fix flag:
+#
+#   x_tool/god2iso <god_package_file> <output_dir> --fix
