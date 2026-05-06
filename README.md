@@ -44,7 +44,7 @@ python3 main.pyw
 That's it. `build.sh` will:
 1. Install system packages (`python3-tk`, `cmake`, `gcc`, `libcurl-dev`, `zlib-dev`) via your distro's package manager
 2. Install Rust via `rustup` if `cargo` is not already present
-3. Install PyInstaller via `pip3`
+3. Install PyInstaller via `pip3` (using `--break-system-packages` on PEP 668 distros such as Debian 13+)
 4. Initialise git submodules (if not already done)
 5. Build `extract-xiso` from `x_tool/extract-xiso-src/`
 6. Build `iso2god` from `x_tool/iso2god-rs/`
@@ -66,7 +66,8 @@ If you just want to run from source without bundling:
 ```bash
 # Build extract-xiso
 cd x_tool/extract-xiso-src && cmake -B build -S . && cmake --build build --parallel
-cp build/extract-xiso ../extract-xiso && cd ../...
+cp build/extract-xiso ../extract-xiso && cd ../..
+
 # Build iso2god
 cd x_tool/iso2god-rs && cargo build --release
 cp target/release/iso2god ../iso2god && cd ../..
