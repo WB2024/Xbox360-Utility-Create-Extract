@@ -42,15 +42,16 @@ fi
 if ! command -v cargo &>/dev/null; then
     echo "==> Installing Rust toolchain via rustup..."
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-    # shellcheck source=/dev/null
-    source "$HOME/.cargo/env"
 fi
+# Ensure cargo is on PATH regardless of when it was installed
+# shellcheck source=/dev/null
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 # PyInstaller
 echo "==> Installing PyInstaller..."
-pip3 install --quiet --user pyinstaller
-
-# Make sure the user's local bin is on PATH (for pyinstaller)
+if ! command -v pyinstaller &>/dev/null; then
+    pip3 install --quiet --break-system-packages pyinstaller
+fi
 export PATH="$HOME/.local/bin:$PATH"
 
 # Ensure submodules are present

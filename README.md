@@ -173,8 +173,8 @@ Reconstructs an ISO from a Games on Demand package.
 ```
 Xbox360-Utility-Create-Extract/
 ├── main.pyw              # Main GUI application
-├── x_create.pyw          # ISO creation logic
-├── x_extract.pyw         # ISO extraction logic
+├── x_create.py           # ISO creation logic
+├── x_extract.py          # ISO extraction logic
 ├── translations.py       # UI string translations
 ├── build.sh              # Build script (tools + PyInstaller bundle)
 ├── Required.txt          # Dependency notes
