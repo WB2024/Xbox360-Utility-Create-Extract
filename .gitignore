@@ -54,7 +54,7 @@ x_tool/god2iso-rs/target/
 x_tool/extract-xiso-src/build/
 
 # abgx360 autoconf build output
-x_tool/abgx360-src/src/abgx360
+x_tool/abgx360-src/abgx360
 x_tool/abgx360-src/Makefile
 x_tool/abgx360-src/config.h
 x_tool/abgx360-src/config.log

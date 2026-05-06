@@ -84,7 +84,7 @@ echo "==> Building abgx360 (ISO fix/verify tool)..."
 cd x_tool/abgx360-src
 ./configure --prefix="$(pwd)/install"
 make -j"$(nproc)"
-cp src/abgx360 ../abgx360
+cp abgx360 ../abgx360
 cd ../..
 
 # ---------------------------------------------------------------------------
