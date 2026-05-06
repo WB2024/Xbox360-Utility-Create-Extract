@@ -16,9 +16,8 @@ def extract_xiso_from_files(delete_after=False):
         # Run the extraction command
         iso_path = os.path.join(iso_folder, iso_file)
         result = subprocess.run(
-            ["x_tool/extract-xiso.exe", "-x", iso_path],
-            capture_output=True,
-            creationflags=subprocess.CREATE_NO_WINDOW  # Hide the console window
+            ["x_tool/extract-xiso", "-x", iso_path],
+            capture_output=True
         )
         
         iso_name = os.path.splitext(iso_file)[0]  # Remove the .iso extension
