@@ -94,7 +94,7 @@ echo "==> Bundling Python application with PyInstaller..."
 pyinstaller \
     --onefile \
     --add-data "x_tool:x_tool" \
-    --add-data "images:images" \
+    --add-data "Images:Images" \
     --add-data "x_ISO:x_ISO" \
     --name "X360Forge" \
     main.pyw

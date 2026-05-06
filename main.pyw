@@ -49,7 +49,7 @@ class XISOToolApp:
         self.translations = get_translations()
 
         try:
-            icon_path = self.resource_path('images/360.ico')
+            icon_path = self.resource_path('Images/360.ico')
             self.root.iconbitmap(icon_path)
         except Exception:
             pass
@@ -249,7 +249,7 @@ class XISOToolApp:
         help_window.configure(bg=self.BG)
 
         try:
-            help_window.iconbitmap(self.resource_path('images/360.ico'))
+            help_window.iconbitmap(self.resource_path('Images/360.ico'))
         except Exception:
             pass
 
