@@ -1,3 +1,6 @@
 [submodule "x_tool/extract-xiso-src"]
 	path = x_tool/extract-xiso-src
 	url = https://github.com/XboxDev/extract-xiso.git
+[submodule "x_tool/iso2god-rs"]
+	path = x_tool/iso2god-rs
+	url = https://github.com/iliazeus/iso2god-rs.git
