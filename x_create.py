@@ -1,8 +1,6 @@
 import os
 import subprocess
 import sys
-import time
-from threading import Thread
 
 def contains_xex_or_xbe(directory):
     """Check if a directory contains any .xex or .xbe files."""
@@ -12,27 +10,11 @@ def contains_xex_or_xbe(directory):
                 return True
     return False
 
-def process_files_in_directory(directory):
-    """Simulate file processing and show progress."""
-    files = [f for f in os.listdir(directory) if f.endswith('.xex') or f.endswith('.xbe')]
-    total_files = len(files)
-    
-    if total_files == 0:
-        return
-    
-    for i, file_name in enumerate(files, start=1):
-        # Simulate file processing
-        progress = i / total_files
-        progress_bar = '#' * int(progress * 40) + '-' * (40 - int(progress * 40))
-        
-        sys.stdout.write(f"\rPROCESSING: {file_name}\n[{progress_bar}] {i}/{total_files}(%)")
-        sys.stdout.flush()
-        
-        # Simulate processing time
-        time.sleep(0.2)  # Simulate some processing delay
-
-def create_xiso_from_directories():
-    all_dirs = [d for d in os.listdir('.') if os.path.isdir(d) and contains_xex_or_xbe(d)]
+def create_xiso_from_directories(source_dir, output_dir):
+    all_dirs = [
+        d for d in os.listdir(source_dir)
+        if os.path.isdir(os.path.join(source_dir, d)) and contains_xex_or_xbe(os.path.join(source_dir, d))
+    ]
     total_dirs = len(all_dirs)
 
     if total_dirs == 0:
@@ -41,25 +23,22 @@ def create_xiso_from_directories():
 
     print(f"FOUND {total_dirs} FOLDER DIRECTORIES TO PROCESS.\n")
 
-    for i, dir_name in enumerate(all_dirs, start=1):
-        iso_filename = f"{dir_name}.iso"
-        
+    for dir_name in all_dirs:
+        iso_filename = os.path.join(output_dir, f"{dir_name}.iso")
+        game_dir = os.path.join(source_dir, dir_name)
+
         if os.path.isfile(iso_filename):
             print(f"SKIPPING: \nFILE EXISTS> {iso_filename}")
             continue
 
         print(f"Game Folder: \n{dir_name}")
 
-        # Show progress for files in the current directory
-        process_files_in_directory(dir_name)
-
-        # Run the command to create the ISO
         result = subprocess.run(
-            ["x_tool/extract-xiso", "-c", dir_name, iso_filename],
+            ["x_tool/extract-xiso", "-c", game_dir, iso_filename],
             capture_output=True,
             text=True
         )
-        
+
         if result.returncode != 0:
             print(f"\nError CREATING ISO for \n{dir_name}\n")
             print(f"\nCommand output: \n{result.stdout}\n")
@@ -70,4 +49,4 @@ def create_xiso_from_directories():
     print("\nDONE.\n")
 
 if __name__ == "__main__":
-    create_xiso_from_directories()
+    create_xiso_from_directories(sys.argv[1], sys.argv[2])

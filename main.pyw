@@ -212,21 +212,48 @@ class XISOToolApp:
 
     def create_xiso(self):
         self.clear_status()
-        threading.Thread(target=self.run_create_xiso).start()
+        source_dir = filedialog.askdirectory(title="Select folder containing game folders (must contain .xex or .xbe files)")
+        if not source_dir:
+            self.update_status("Cancelled.")
+            return
+        output_dir = filedialog.askdirectory(title="Select output folder for ISO files")
+        if not output_dir:
+            self.update_status("Cancelled.")
+            return
+        self.update_status(f"Create ISOs from game folders\nSource: {source_dir}\nOutput: {output_dir}\n\nScanning for game folders...")
+        threading.Thread(target=self.run_create_xiso, args=(source_dir, output_dir)).start()
 
-    def run_create_xiso(self):
-        x_create.create_xiso_from_directories()
+    def run_create_xiso(self, source_dir, output_dir):
+        x_create.create_xiso_from_directories(source_dir, output_dir)
 
     def extract_xiso(self):
         self.clear_status()
-        threading.Thread(target=self.run_extract_xiso, args=(False,)).start()
+        iso_folder = filedialog.askdirectory(title="Select folder containing ISO files")
+        if not iso_folder:
+            self.update_status("Cancelled.")
+            return
+        output_folder = filedialog.askdirectory(title="Select output folder for extracted game folders")
+        if not output_folder:
+            self.update_status("Cancelled.")
+            return
+        self.update_status(f"Extract ISOs\nSource: {iso_folder}\nOutput: {output_folder}\n\nExtracting...")
+        threading.Thread(target=self.run_extract_xiso, args=(iso_folder, output_folder, False)).start()
 
     def extract_delete_xiso(self):
         self.clear_status()
-        threading.Thread(target=self.run_extract_xiso, args=(True,)).start()
+        iso_folder = filedialog.askdirectory(title="Select folder containing ISO files")
+        if not iso_folder:
+            self.update_status("Cancelled.")
+            return
+        output_folder = filedialog.askdirectory(title="Select output folder for extracted game folders")
+        if not output_folder:
+            self.update_status("Cancelled.")
+            return
+        self.update_status(f"Extract ISOs (delete originals)\nSource: {iso_folder}\nOutput: {output_folder}\n\nExtracting...")
+        threading.Thread(target=self.run_extract_xiso, args=(iso_folder, output_folder, True)).start()
 
-    def run_extract_xiso(self, delete_after):
-        x_extract.extract_xiso_from_files(delete_after)
+    def run_extract_xiso(self, iso_folder, output_folder, delete_after):
+        x_extract.extract_xiso_from_files(iso_folder, output_folder, delete_after)
 
     def update_status(self, message):
         """ Update the status text window with a message. """
