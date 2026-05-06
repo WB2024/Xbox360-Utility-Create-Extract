@@ -49,7 +49,7 @@ class XISOToolApp:
         self.translations = get_translations()
 
         try:
-            icon_path = self.resource_path('Images/360.ico')
+            icon_path = self.resource_path('Images/Icon.ico')
             self.root.iconbitmap(icon_path)
         except Exception:
             pass
@@ -112,17 +112,23 @@ class XISOToolApp:
         header = tk.Frame(self.root, bg=self.PANEL)
         header.pack(fill=tk.X)
 
+        try:
+            self._app_icon_img = tk.PhotoImage(file=self.resource_path('Images/Icon.png'))
+            tk.Label(header, image=self._app_icon_img, bg=self.PANEL, bd=0).pack(pady=(10, 4))
+        except Exception:
+            pass
+
         self.title_label = tk.Label(
             header, text="X360Forge",
             font=("Helvetica", 22, "bold"), fg=self.ACCENT, bg=self.PANEL
         )
-        self.title_label.pack(pady=(14, 0))
+        self.title_label.pack(pady=(0, 0))
 
         self.author_label = tk.Label(
             header, text="by WB2024",
             font=("Helvetica", 9), fg=self.TEXT_DIM, bg=self.PANEL
         )
-        self.author_label.pack(pady=(0, 12))
+        self.author_label.pack(pady=(0, 10))
 
         tk.Frame(self.root, bg=self.BORDER, height=1).pack(fill=tk.X)
 
@@ -276,7 +282,7 @@ class XISOToolApp:
         help_window.configure(bg=self.BG)
 
         try:
-            help_window.iconbitmap(self.resource_path('Images/360.ico'))
+            help_window.iconbitmap(self.resource_path('Images/Icon.ico'))
         except Exception:
             pass
 

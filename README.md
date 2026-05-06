@@ -1,9 +1,13 @@
-# X360Forge
+<p align="center">
+  <img src="Images/Banner-black.png" alt="X360Forge" width="800"/>
+</p>
+
+<p align="center">
+  <img src="Images/Pannel.png" alt="Batch Extraction · ISO Creation · GOD Conversion · ISO Fixing · Native Linux Tools" width="800"/>
+</p>
 
 > A fully native Linux port of the original Windows-only Xbox 360 utility by BLAHPR.  
 > No wine. No Windows tools. All binaries are built from source on Linux.
-
-Xbox 360 & Original Xbox ISO toolkit — batch extraction, creation, GOD conversion, and ISO fixing, all with native Linux tools.
 
 ---
 
@@ -11,9 +15,9 @@ Xbox 360 & Original Xbox ISO toolkit — batch extraction, creation, GOD convers
 
 | Button | What it does |
 |---|---|
-| **Extract Game Folders from ISOs** | Batch-extracts all `.iso` files in `x_ISO/` into game folders |
-| **Create ISOs from Game Folders** | Batch-creates `.iso` files from game folders containing `.xex` / `.xbe` |
-| **Extract and Delete ISO Files** | Same as above, permanently deletes source ISOs after extraction |
+| **Extract Game Folders from ISOs** | Pick a folder of `.iso` files and an output folder — extracts each ISO into a game folder |
+| **Create ISOs from Game Folders** | Pick a source folder of game dirs (`.xex`/`.xbe`) and an output folder — creates an `.iso` for each |
+| **Extract and Delete ISO Files** | Same as Extract, but permanently deletes source ISOs after extraction |
 | **Delete Game Folders** | Permanently deletes extracted game folders containing `.xex` / `.xbe` |
 | **Fix ISO (abgx360)** | Verifies and auto-fixes ISO headers, stealth sectors, and video padding |
 | **ISO to GOD** | Converts an ISO to Games on Demand format (Xbox 360 and Original Xbox) |
@@ -89,12 +93,7 @@ cp src/abgx360 ../abgx360 && cd ../..
 python3 main.pyw
 ```
 
-The `x_tool/` and `x_ISO/` directories must be in the same directory as `main.pyw`.  
-Create `x_ISO/` if it doesn't exist:
-
-```bash
-mkdir -p x_ISO
-```
+The `x_tool/` directory must be in the same directory as `main.pyw`. All file and folder selection is done via in-app pickers.
 
 ---
 
@@ -102,9 +101,10 @@ mkdir -p x_ISO
 
 ### 1. Batch Extract ISOs → Game Folders
 
-1. Place your `.iso` files inside the `x_ISO/` folder
-2. Click **Extract Game Folders from ISOs**
-3. Each ISO is extracted to a game folder next to `x_ISO/` — containing `.xex` or `.xbe` files
+1. Click **Extract Game Folders from ISOs**
+2. Select the folder containing your `.iso` files
+3. Select the output folder where game folders will be extracted
+4. Each ISO is extracted into a subfolder containing `.xex` or `.xbe` files
 
 > Use **Extract and Delete ISO Files** to automatically remove the source ISOs after extraction.
 
@@ -112,9 +112,10 @@ mkdir -p x_ISO
 
 ### 2. Batch Create ISOs from Game Folders
 
-1. Place your game folders next to `x_ISO/` (not inside it) — each must contain `.xex` or `.xbe` files
-2. Click **Create ISOs from Game Folders**
-3. A `.iso` file is created for each game folder, saved next to `x_ISO/`
+1. Click **Create ISOs from Game Folders**
+2. Select the folder containing your game directories (each must contain `.xex` or `.xbe` files)
+3. Select the output folder where ISO files will be written
+4. An `.iso` file is created for each valid game folder
 
 > Newly created ISOs may have incorrect headers. Run **Fix ISO (abgx360)** on them afterwards.
 
